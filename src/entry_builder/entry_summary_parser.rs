@@ -9,13 +9,12 @@ pub fn from_str(summary: &str) -> Result<&str, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entry::entry_summary_parser;
 
     #[test]
     fn given_valid_summary_str_returns_ok() {
         let summary_str = "A summary";
 
-        let result = entry_summary_parser::from_str(summary_str);
+        let result = from_str(summary_str);
         
         assert!(result.is_ok());
 
@@ -27,7 +26,7 @@ mod tests {
     fn given_empty_summary_str_returns_err() {
         let summary_str = "";
 
-        let result = entry_summary_parser::from_str(summary_str);
+        let result = from_str(summary_str);
 
         assert!(result.is_err());
 

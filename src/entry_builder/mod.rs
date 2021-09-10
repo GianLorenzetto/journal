@@ -1,22 +1,26 @@
-use chrono::{Date, Local};
-use std::time::Duration;
+use crate::prelude::*;
 
-use crate::entry::{entry_date_parser, entry_duration_parser, entry_summary_parser};
+mod entry_date_parser;
+mod entry_duration_parser;
+mod entry_summary_parser;
 
-#[derive(Debug)]
-pub struct Entry {
-    pub date: Date<Local>,
-    pub duration: std::time::Duration,
-    pub summary: String,
+pub struct EntryBuilder {
+    pub entry: Option<Entry>,
 }
 
-impl Entry {
-    pub fn new(date: Date<Local>, duration: Duration, summary: &str) -> Self {
-        Self {
-            date,
-            duration,
-            summary: String::from(summary),
+impl EntryBuilder {
+    pub fn from_str(raw_str: &str) -> Result<Entry, String> {
+        let mut items: Vec<&str> = vec![];
+        raw_str
+            .split_whitespace()
+            .for_each(|itm| items.push(itm.trim()));
+
+        if items.len() < 4 {
+            return Err(String::from("Not enough parameters"))
         }
+
+        let (_, summary_items) = items.split_at(2);
+        EntryBuilder::from(items[0], items[1], &summary_items.join(" "))
     }
 
     pub fn from(date: &str, duration: &str, summary: &str) -> Result<Entry, String> {

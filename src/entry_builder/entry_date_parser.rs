@@ -22,13 +22,12 @@ mod tests {
     use super::*;
     use std::ops::{Add, Sub};
     use chrono::{Local, Datelike, Duration};
-    use crate::entry::entry_date_parser;
 
     #[test]
     fn given_valid_date_str_returns_ok() {
         let date_str = "21-7-13";
 
-        let result = entry_date_parser::from_str(date_str);
+        let result = from_str(date_str);
         
         assert!(result.is_ok());
 
@@ -40,15 +39,15 @@ mod tests {
 
     #[test]
     fn given_invalid_date_str_returns_err() {
-        let result = entry_date_parser::from_str("");
+        let result = from_str("");
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "premature end of input");
 
-        let result = entry_date_parser::from_str("21-7");
+        let result = from_str("21-7");
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "premature end of input");
 
-        let result = entry_date_parser::from_str("21-13-7");
+        let result = from_str("21-13-7");
         assert!(result.is_err());
         assert_eq!(result.unwrap_err().to_string(), "input is out of range");
     }
@@ -57,7 +56,7 @@ mod tests {
     fn given_today_create_with_todays_date() {
         let date_str = "today";
 
-        let result = entry_date_parser::from_str(date_str);
+        let result = from_str(date_str);
 
         assert!(result.is_ok());
 
@@ -72,7 +71,7 @@ mod tests {
     fn given_tomorrow_create_with_tomorrows_date() {
         let date_str = "tomorrow";
 
-        let result = entry_date_parser::from_str(date_str);
+        let result = from_str(date_str);
 
         assert!(result.is_ok());
 
@@ -87,7 +86,7 @@ mod tests {
     fn given_yesterday_create_with_yesterdayss_date() {
         let date_str = "yesterday";
 
-        let result = entry_date_parser::from_str(date_str);
+        let result = from_str(date_str);
 
         assert!(result.is_ok());
 
