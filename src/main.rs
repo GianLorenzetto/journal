@@ -1,9 +1,11 @@
 mod entry;
 mod entry_builder;
+mod io;
 
 mod prelude {
     pub use crate::entry::Entry;
     pub use crate::entry_builder::*;
+    pub use crate::io::*;
 }
 
 use prelude::*;
