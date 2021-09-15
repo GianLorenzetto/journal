@@ -1,7 +1,7 @@
 pub fn from_str(summary: &str) -> Result<&str, String> {
     let s = summary.trim();
     if s.is_empty() {
-        return Err(String::from("Summary is empty"))
+        return Err(String::from("Summary is empty"));
     }
     Ok(s)
 }
@@ -15,7 +15,7 @@ mod tests {
         let summary_str = "A summary";
 
         let result = from_str(summary_str);
-        
+
         assert!(result.is_ok());
 
         let s = result.unwrap();

@@ -3,7 +3,7 @@ use parse_duration::parse::Error;
 use std::time::Duration;
 
 pub fn from_str(duration: &str) -> Result<Duration, Error> {
-   parse(duration)
+    parse(duration)
 }
 
 #[cfg(test)]
@@ -15,9 +15,12 @@ mod tests {
         let duration_str = "";
 
         let result = from_str(duration_str);
-        
+
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "NoValueFoundError: no value found in the string \"\"");
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "NoValueFoundError: no value found in the string \"\""
+        );
     }
 
     #[test]
@@ -27,7 +30,10 @@ mod tests {
         let result = from_str(duration_str);
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "UnknownUnitError: \"x\" is not a known unit");
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "UnknownUnitError: \"x\" is not a known unit"
+        );
     }
 
     #[test]
@@ -37,7 +43,10 @@ mod tests {
         let result = from_str(duration_str);
 
         assert!(result.is_err());
-        assert_eq!(result.unwrap_err().to_string(), "NoValueFoundError: no value found in the string \"a mins\"");
+        assert_eq!(
+            result.unwrap_err().to_string(),
+            "NoValueFoundError: no value found in the string \"a mins\""
+        );
     }
 
     #[test]

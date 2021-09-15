@@ -1,8 +1,9 @@
 use crate::prelude::*;
-use chrono::{Local, Datelike, Date, DateTime, TimeZone};
-use std::error::Error;
-use serde::{Serialize,Deserialize};
+use chrono::{Date, DateTime, Datelike, Local, TimeZone};
+use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use std::error::Error;
+use std::fs::OpenOptions;
 use std::time::Duration;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -26,9 +27,7 @@ impl EntryRecord {
     fn as_entry(&self) -> Result<Entry, Box<dyn Error>> {
         let date = match DateTime::parse_from_rfc3339(&self.date) {
             Ok(d) => d.date().with_timezone(&Local),
-            Err(e) => {
-                return Err(e.to_string().into())
-            },
+            Err(e) => return Err(e.to_string().into()),
         };
         let secs = self.duration.parse::<u64>()?;
         let duration = Duration::from_secs(secs);
@@ -43,21 +42,30 @@ fn file_path_from_date(date: &Date<Local>) -> String {
 pub fn write_entry(entry: &Entry, date: &Date<Local>) -> Result<String, Box<dyn Error>> {
     let record = EntryRecord::create(entry);
     let file_name = file_path_from_date(date);
-    let mut wtr = csv::Writer::from_path(&file_name)?;
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .append(true)
+        .open(&file_name)?;
+
+    let mut wtr = csv::WriterBuilder::new()
+        .has_headers(false)
+        .from_writer(&file);
     wtr.serialize(&record)?;
     wtr.flush()?;
     Ok(file_name)
 }
 
-pub fn read_entry(date: &Date<Local>) -> Result<Entry, Box< dyn Error>> {
+pub fn read_entry(date: &Date<Local>) -> Result<Entry, Box<dyn Error>> {
     let file_name = file_path_from_date(date);
     let mut rdr = csv::ReaderBuilder::new()
-        .has_headers(true)
+        .has_headers(false)
         .from_path(file_name)?;
     for result in rdr.deserialize() {
         let record: EntryRecord = result?;
         let entry: Entry = record.as_entry()?;
-        return Ok(entry)
+        return Ok(entry);
     }
     Err(String::from("Unable to read entry").into())
 }
@@ -65,13 +73,13 @@ pub fn read_entry(date: &Date<Local>) -> Result<Entry, Box< dyn Error>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::time::Duration;
-    use std::path::Path;
-    use::std::fs;
+    use ::std::fs;
     use std::fs::remove_file;
+    use std::path::Path;
+    use std::time::Duration;
 
     #[test]
-    fn given_entry_when_write_then_file_is_created() -> Result<(), Box<dyn Error>>{
+    fn given_entry_when_write_then_file_is_created() -> Result<(), Box<dyn Error>> {
         // Arrange
         let today = Local::today();
         let duration = Duration::from_secs(3600);
@@ -81,15 +89,45 @@ mod tests {
         // Clean up any existing file
         match remove_file(file_path_from_date(&today)) {
             Err(e) => println!("Error: {}", e),
-            _ => {},
+            _ => {}
         }
 
         // Act - Write Entry
         let write_result = write_entry(&entry, &today)?;
 
         // Assert
-        assert_eq!(write_result, format!("Journal_{}.csv", today.format("%b%Y")));
+        assert_eq!(
+            write_result,
+            format!("Journal_{}.csv", today.format("%b%Y"))
+        );
         assert!(Path::new(&write_result).exists());
+
+        // Act - Read Entry
+        let read_result = read_entry(&today)?;
+
+        // Assert
+        assert_eq!(read_result.summary, summary);
+
+        Ok(())
+    }
+
+    #[test]
+    fn given_two_entries_when_write_then_file_is_appended() -> Result<(), Box<dyn Error>> {
+        // Arrange
+        let today = Local::today();
+        let duration = Duration::from_secs(3600);
+        let summary = "Description of the entry";
+        let entry = Entry::new(today, duration, summary);
+
+        // Clean up any existing file
+        match remove_file(file_path_from_date(&today)) {
+            Err(e) => println!("Error: {}", e),
+            _ => {}
+        }
+
+        // Act - Write Entry
+        write_entry(&entry, &today)?;
+        write_entry(&entry, &today)?;
 
         // Act - Read Entry
         let read_result = read_entry(&today)?;

@@ -20,7 +20,9 @@ fn main() {
         println!("Add entry:");
 
         let mut raw_entry = String::new();
-        stdin().read_line(&mut raw_entry).expect("Failed to read entry_builder");
+        stdin()
+            .read_line(&mut raw_entry)
+            .expect("Failed to read entry_builder");
 
         let entry_result = match raw_entry.split_once(" ") {
             Some((cmd, rest)) => match cmd.to_ascii_lowercase().as_str() {
@@ -39,5 +41,3 @@ fn main() {
         }
     }
 }
-
-

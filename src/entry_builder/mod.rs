@@ -16,7 +16,7 @@ impl EntryBuilder {
             .for_each(|itm| items.push(itm.trim()));
 
         if items.len() < 4 {
-            return Err(String::from("Not enough parameters"))
+            return Err(String::from("Not enough parameters"));
         }
 
         let (_, summary_items) = items.split_at(2);
@@ -39,6 +39,10 @@ impl EntryBuilder {
             return Err(summary_result.unwrap_err().to_string());
         }
 
-        Ok(Entry::new(date_result.unwrap(), duration_result.unwrap(), summary_result.unwrap()))
+        Ok(Entry::new(
+            date_result.unwrap(),
+            duration_result.unwrap(),
+            summary_result.unwrap(),
+        ))
     }
 }

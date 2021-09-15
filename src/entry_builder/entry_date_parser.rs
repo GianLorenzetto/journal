@@ -1,18 +1,22 @@
-use chrono::{Date, Local, NaiveDate, Duration, TimeZone};
 use chrono::format::ParseError;
+use chrono::{Date, Duration, Local, NaiveDate, TimeZone};
 
 pub fn from_str(date: &str) -> Result<Date<Local>, ParseError> {
     let date_result = match date {
         "today" => Local::today(),
-        "tomorrow" => Local::today().checked_add_signed(Duration::days(1)).unwrap(),
-        "yesterday" => Local::today().checked_sub_signed(Duration::days(1)).unwrap(),
+        "tomorrow" => Local::today()
+            .checked_add_signed(Duration::days(1))
+            .unwrap(),
+        "yesterday" => Local::today()
+            .checked_sub_signed(Duration::days(1))
+            .unwrap(),
         _ => {
             let nd = match NaiveDate::parse_from_str(date, "%y-%m-%d") {
                 Ok(d) => d,
                 Err(err) => return Err(err),
             };
             Local.from_local_date(&nd).unwrap()
-        },
+        }
     };
     Ok(date_result)
 }
@@ -20,15 +24,15 @@ pub fn from_str(date: &str) -> Result<Date<Local>, ParseError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::{Datelike, Duration, Local};
     use std::ops::{Add, Sub};
-    use chrono::{Local, Datelike, Duration};
 
     #[test]
     fn given_valid_date_str_returns_ok() {
         let date_str = "21-7-13";
 
         let result = from_str(date_str);
-        
+
         assert!(result.is_ok());
 
         let d = result.unwrap();
